@@ -1,0 +1,8 @@
+fastapi[all]
+uvicorn
+# sqlalchemy[asyncio]
+asyncpg
+alembic
+pydantic
+psycopg2-binary
+inflect
