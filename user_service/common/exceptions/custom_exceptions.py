@@ -37,3 +37,8 @@ class UnprocessableException(AppException):
 class InternalServerException(AppException):
     def __init__(self, message="Internal server error", payload: Optional[Dict]=None):
         super().__init__(message, status.HTTP_500_INTERNAL_SERVER_ERROR, "internal_error", payload)
+
+
+class DatabaseException(AppException):
+    def __init__(self, message="Database operation failed", payload: Optional[Dict] = None):
+        super().__init__(message, status.HTTP_500_INTERNAL_SERVER_ERROR, "database_error", payload)

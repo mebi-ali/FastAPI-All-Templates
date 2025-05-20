@@ -20,3 +20,7 @@ async def startup_event():
 @app.get("/")
 def read_root():
     return {"msg": "Hello from User Service!"}
+
+@app.get("/health", tags=["Health"])
+async def healthcheck():
+    return {"status": "ok"}
