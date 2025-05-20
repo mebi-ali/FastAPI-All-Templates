@@ -14,7 +14,7 @@ class DatabaseManager:
     def __init__(self):
         self.engine = create_async_engine(
             settings.DATABASE_URL,
-            echo=settings.DEBUG_MODE,
+            echo=settings.DEBUG_MODE,  # If you want less logs change DEBUG_MODE=False
             future=True,
             pool_pre_ping=True,
         )
