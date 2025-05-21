@@ -62,7 +62,6 @@ class BaseCRUD(Generic[ModelType]):
         except SQLAlchemyError as e:
             raise custom_exceptions.DatabaseException(f"[LIST] Error retrieving all {self.model.__name__}: {e}")
         
-
     async def create(self, session: AsyncSession, obj_data: Dict[str, Any]) -> ModelType:
         try:
             logger.debug(f"[CRUD] Creating {self.model.__name__} with data: {obj_data}")

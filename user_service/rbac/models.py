@@ -1,59 +1,42 @@
 # rbac/models.py
 
-from typing import TYPE_CHECKING
-from sqlalchemy import Column, String, ForeignKey, Table
-from sqlalchemy.orm import relationship, Mapped, mapped_column
-from user_service.db import Base, BaseUUIDModel
-import uuid
+from fastorm import FastORM
+from typing import Optional
 from uuid import UUID
 
-if TYPE_CHECKING:
-    from user_service.user.models import UserModel
 
-class RoleModel(BaseUUIDModel):
-    __tablename__ = "roles"
+class RoleModel(FastORM):
+    _table_name = "roles"
+    _primary_keys = ["id"]
+    _automatic_fields = ["id"]
 
-    name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    description: Mapped[str] = mapped_column(String, nullable=True)
-
-    permissions: Mapped[list["PermissionModel"]] = relationship(
-        "PermissionModel",
-        secondary="role_permissions",
-        back_populates="roles",
-        lazy="selectin"
-    )
-
-    users: Mapped[list["UserModel"]] = relationship(
-        "UserModel",
-        secondary="user_roles",
-        back_populates="roles",
-        lazy="selectin"
-    )
+    id: Optional[UUID]
+    name: str
+    description: Optional[str]
 
 
-class PermissionModel(BaseUUIDModel):
-    __tablename__ = "permissions"
+class PermissionModel(FastORM):
+    _table_name = "permissions"
+    _primary_keys = ["id"]
+    _automatic_fields = ["id"]
 
-    name: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    description: Mapped[str] = mapped_column(String, nullable=True)
-
-    roles: Mapped[list["RoleModel"]] = relationship(
-        "RoleModel",
-        secondary="role_permissions",
-        back_populates="permissions",
-        lazy="selectin"
-    )
+    id: Optional[UUID]
+    name: str
+    description: Optional[str]
 
 
-class RolePermissionModel(Base):
-    __tablename__ = "role_permissions"
+class RolePermissionModel(FastORM):
+    _table_name = "role_permissions"
+    _primary_keys = ["role_id", "permission_id"]
 
-    role_id: Mapped[UUID] = mapped_column(ForeignKey("roles.id"), primary_key=True)
-    permission_id: Mapped[UUID] = mapped_column(ForeignKey("permissions.id"), primary_key=True)
+    role_id: UUID
+    permission_id: UUID
 
 
-class UserRoleModel(Base):
-    __tablename__ = "user_roles"
+class UserRoleModel(FastORM):
+    _table_name = "user_roles"
+    _primary_keys = ["user_id", "role_id"]
 
-    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), primary_key=True)
-    role_id: Mapped[UUID] = mapped_column(ForeignKey("roles.id"), primary_key=True)
+    user_id: UUID
+    role_id: UUID
+
