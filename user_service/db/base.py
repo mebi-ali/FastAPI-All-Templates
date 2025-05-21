@@ -1,8 +1,9 @@
 #db/base.py
+
 import uuid
 import inflect
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 from sqlalchemy import String, Boolean, DateTime, MetaData, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.asyncio import AsyncAttrs
@@ -53,6 +54,7 @@ class TimestampMixin:
 
 class SoftDeleteMixin:
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class BaseUUIDModel(UUIDPrimaryKeyMixin, TimestampMixin, BaseModel):

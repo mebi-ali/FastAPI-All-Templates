@@ -1,4 +1,5 @@
 # common/exceptions/custom_exceptions.py
+
 from typing import Optional, Dict
 from fastapi import status
 from . import AppException

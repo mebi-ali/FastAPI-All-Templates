@@ -1,4 +1,4 @@
-# common/exceptions/exception_handler.py
+#common/exceptions/exception_handler.py
 
 from fastapi import Request, FastAPI
 from fastapi.exceptions import RequestValidationError
@@ -15,17 +15,7 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(AppException)
     async def app_exception_handler(request: Request, exc: AppException):
-        logger.error(
-            "AppException occurred",
-            extra={
-                "path": request.url.path,
-                "method": request.method,
-                "error": exc.error_code,
-                "message": exc.message,
-                "status_code": exc.status_code,
-                "payload": exc.payload,
-            },
-        )
+        # ✅ Removed redundant logger.error — logging already happens in AppException.__init__()
         return JSONResponse(
             status_code=exc.status_code,
             content=exc.detail,
@@ -46,7 +36,7 @@ def register_exception_handlers(app: FastAPI) -> None:
             status_code=exc.status_code,
             content={
                 "error": "http_error",
-                "message": str(exc.detail),
+                "error_message": str(exc.detail),
                 "payload": {},
             },
         )

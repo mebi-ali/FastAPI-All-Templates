@@ -1,3 +1,5 @@
+#core/config.py
+
 from functools import lru_cache
 from typing import Optional
 from pydantic import Field, validator
@@ -18,8 +20,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str
 
     # JWT / Auth
-    SECRET_KEY: str
-    ALGORITHM: str = "HS256"
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     # SMTP / Email (optional)

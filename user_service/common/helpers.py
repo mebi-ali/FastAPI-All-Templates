@@ -1,5 +1,5 @@
 #common/helper.py
-
+from pydantic import BaseModel, Field
 from datetime import datetime, timedelta, timezone
 from typing import Union, Optional, Any, Dict, List
 
@@ -108,3 +108,9 @@ def add_minutes_to_now(minutes: int, tz: str = "UTC") -> datetime:
 
 def add_days_to_now(days: int, tz: str = "UTC") -> datetime:
     return get_timezone_now(tz) + timedelta(days=days)
+
+
+### Paginations
+class Pagination(BaseModel):
+    skip: int = Field(0, ge=0, description="Number of records to skip")
+    limit: int = Field(100, ge=1, le=1000, description="Max records to return")

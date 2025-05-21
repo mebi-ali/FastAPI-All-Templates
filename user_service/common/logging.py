@@ -20,30 +20,31 @@ def redact_value(key: str, value: Any) -> Any:
         return "***REDACTED***"
     return value
 
-
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
-        # Build base log record
+        # Base log record
         log_record: Dict[str, Any] = {
             "timestamp": datetime.utcnow().isoformat() + "Z",
             "level": record.levelname,
             "service": settings.PROJECT_NAME,
             "environment": settings.ENVIRONMENT,
-            "module": record.module,
-            "function": record.funcName,
+            "source_module": record.module,
+            "source_function": record.funcName,
             "line": record.lineno,
             "message": record.getMessage(),
         }
 
-        # Optional contextual data (redacted if needed)
-        for attr in ("request_id", "user_id", "trace_id"):
-            if hasattr(record, attr):
-                log_record[attr] = redact_value(attr, getattr(record, attr))
+        # Add any custom attributes passed via `extra`
+        standard_attrs = {
+            'name', 'msg', 'args', 'levelname', 'levelno', 'pathname', 'filename',
+            'module', 'exc_info', 'exc_text', 'stack_info', 'lineno', 'funcName',
+            'created', 'msecs', 'relativeCreated', 'thread', 'threadName', 'processName',
+            'process', 'message'
+        }
 
-        # Redact any extra fields (if provided)
-        if hasattr(record, "extra") and isinstance(record.extra, dict):
-            for key, val in record.extra.items():
-                log_record[key] = redact_value(key, val)
+        for key, value in record.__dict__.items():
+            if key not in standard_attrs:
+                log_record[key] = redact_value(key, value)
 
         return json.dumps(log_record, indent=2, ensure_ascii=False)
 
