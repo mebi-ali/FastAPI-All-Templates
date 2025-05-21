@@ -4,6 +4,7 @@ from uuid import UUID
 from datetime import datetime
 from typing import Type, TypeVar, Generic, Optional, List, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 from sqlalchemy import select, and_, update as sql_update, delete as sql_delete
 from sqlalchemy.exc import SQLAlchemyError
 from user_service.common import logger, custom_exceptions 
@@ -19,7 +20,7 @@ class BaseCRUD(Generic[ModelType]):
     async def get_by_id(self, session: AsyncSession, obj_id: UUID) -> ModelType:
         try:
             logger.debug(f"[CRUD] Getting {self.model.__name__} by ID: {obj_id}")
-            stmt = select(self.model).where(self.model.id == obj_id, self.model.is_delete==False)
+            stmt = select(self.model).where(self.model.id == obj_id, self.model.is_deleted==False)
             result = await session.execute(stmt)
             obj = result.scalar_one_or_none()
             if obj is None:
@@ -40,8 +41,7 @@ class BaseCRUD(Generic[ModelType]):
         try:
             logger.debug(f"[CRUD] Getting all {self.model.__name__} records (skip={skip}, limit={limit}, filters={filters})")
 
-            stmt = select(self.model)
-            print("filters input:", filters)
+            stmt = select(self.model).options(selectinload(self.model.roles))
             if filters:
                 conditions = []
                 for key, value in filters.items():
@@ -53,7 +53,6 @@ class BaseCRUD(Generic[ModelType]):
                         column_attr = getattr(self.model, key, None)
                         if column_attr is not None:
                             conditions.append(column_attr == value)
-                print("WHERE conditions:", conditions)
                 stmt = stmt.where(and_(*conditions))
 
             stmt = stmt.offset(skip).limit(limit)

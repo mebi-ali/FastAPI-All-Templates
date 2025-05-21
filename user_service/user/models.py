@@ -1,10 +1,15 @@
 #user/models.py
 
 from datetime import date, datetime
-from typing import Optional
+from typing import Optional, TYPE_CHECKING, List
 from sqlalchemy import String, Boolean, DateTime, Date
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from user_service.db import BaseUUIDModel, SoftDeleteMixin
+
+
+if TYPE_CHECKING:
+    from user_service.rbac.models import RoleModel
+
 
 class UserModel(BaseUUIDModel, SoftDeleteMixin):
     __tablename__ = "users"
@@ -20,7 +25,14 @@ class UserModel(BaseUUIDModel, SoftDeleteMixin):
     is_verified: Mapped[bool] = mapped_column(Boolean, default=True)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
     last_login: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
-
+    
+    # RBAC relationship
+    roles: Mapped[List["RoleModel"]] = relationship(
+        "RoleModel",
+        secondary="user_roles",
+        back_populates="users",
+        lazy="selectin"
+    )
 
     def __repr__(self):
         return f"<UserModel(id={self.id}, email={self.email}, active={self.is_active})>"

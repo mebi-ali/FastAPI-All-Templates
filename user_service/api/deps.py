@@ -1,4 +1,3 @@
-
 # user_service/api/deps.py
 
 from fastapi import Depends, HTTPException, status
@@ -32,3 +31,11 @@ async def get_current_user(
         raise custom_exceptions.UnauthorizedException("User not found")
 
     return user
+
+
+async def get_current_active_superuser(
+    current_user: user_schemas.UserOut = Depends(get_current_user)
+) -> user_schemas.UserOut:
+    if not current_user.is_superuser:
+        raise custom_exceptions.UnauthorizedException("Insufficient privileges")
+    return current_user

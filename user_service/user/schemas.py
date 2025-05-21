@@ -1,8 +1,9 @@
 #user/schemas.py
 
 from datetime import date, datetime
-from typing import Optional
+from typing import Optional, List
 from uuid import UUID
+from user_service.rbac.schemas import RoleRead
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -18,7 +19,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=8, max_length=256)
-
+    role_ids: Optional[List[UUID]] = Field(default_factory=list)
 
 class UserUpdate(BaseModel):
     full_name: Optional[str] = Field(None, max_length=100)
@@ -38,6 +39,13 @@ class UserOut(UserBase):
     
     class Config:
       orm = True
+      
+class UserRead(UserOut):
+    roles: List[RoleRead] = []
+
+    class Config:
+        from_attributes = True
+
 
 # User Filters
 class UserFilters(BaseModel):
@@ -45,23 +53,3 @@ class UserFilters(BaseModel):
     is_active: Optional[bool] = Field(None, description="Filter by active status")
     is_verified: Optional[bool] = Field(None, description="Filter by verification status")
     email_contains: Optional[str] = Field(None, description="Filter by email substring")
-
-
-
-# class UserOut(BaseModel):
-#     id: UUID
-#     full_name: Optional[str]
-#     email: Optional[EmailStr]
-#     dob: Optional[date]
-#     gender: Optional[str]
-#     marketing_check: bool
-#     is_active: bool
-#     is_verified: bool
-#     is_superuser: bool
-#     last_login: Optional[datetime]
-#     created_at: datetime
-#     updated_at: datetime
-
-#     class Config:
-#         orm_mode = True
-
